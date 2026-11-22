@@ -1,0 +1,49 @@
+Total icons: 428
+Downloaded: 413
+Failed: 15
+
+#1: https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#2: https://maps.google.com/mapfiles/kml/pushpin/purple-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#3: https://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#4: https://maps.google.com/mapfiles/kml/pushpin/pink-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#5: https://maps.google.com/mapfiles/kml/pushpin/wht-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#6: https://maps.google.com/mapfiles/kml/pushpin/ltblu-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#7: https://maps.google.com/mapfiles/kml/pushpin/grn-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#8: https://maps.google.com/mapfiles/kml/pushpin/blue-pushpin.png"
+Error: HTTP Error 404: Not Found
+
+#84: https://www.image2url.com/r2/default/files/1783631986832-5bd996da-0408-4e9e-be95-0dc8c514c3a9.png"
+Error: HTTP Error 403: Forbidden
+
+#154: https://www.image2url.com/r2/default/files/1781963421652-3ee70b33-1831-4539-80fc-218474aa7733.png"
+Error: HTTP Error 403: Forbidden
+
+#261: https://i.postimg.cc/90N5R1km/hill.png"
+Error: HTTP Error 503: Service Temporarily Unavailable
+
+#262: https://i.postimg.cc/x8FDJg4w/homecenter.png"
+Error: HTTP Error 503: Service Temporarily Unavailable
+
+#344: https://www.image2url.com/r2/default/files/1783632084701-5292c8db-c773-49aa-a70f-883cce7f0964.png"
+Error: HTTP Error 403: Forbidden
+
+#345: https://www.image2url.com/r2/default/files/1783632291680-e54f9cae-3377-41f2-8d74-b0ee35641c50.png"
+Error: HTTP Error 403: Forbidden
+
+#346: https://www.image2url.com/r2/default/files/1783632343455-3a34769a-4241-4687-a026-877275be7cfd.png"
+Error: HTTP Error 403: Forbidden
+
