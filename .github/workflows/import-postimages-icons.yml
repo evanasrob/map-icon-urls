@@ -1,0 +1,133 @@
+name: Import Postimages icons
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-icons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download icons from the existing list
+        env:
+          SOURCE_URL: https://gist.githubusercontent.com/evanasrob/f5990b7f5e0f5bf2c9b1e2f212b888ef/raw/789ba494cfe22723169497a101168c1b289bb121/icons.json
+        run: |
+          python - <<'PY'
+          import concurrent.futures
+          import mimetypes
+          import os
+          import pathlib
+          import re
+          import time
+          import urllib.parse
+          import urllib.request
+
+          source_url = os.environ["SOURCE_URL"]
+          req = urllib.request.Request(source_url, headers={"User-Agent": "Mozilla/5.0"})
+          with urllib.request.urlopen(req, timeout=30) as response:
+              source_text = response.read().decode("utf-8-sig")
+
+          entries = []
+          for line in source_text.splitlines():
+              stripped = line.strip()
+              if not stripped or stripped.startswith("#"):
+                  continue
+              match = re.search(r"https?://[^\s]+", stripped)
+              if not match:
+                  continue
+              url = match.group(0).rstrip("),;")
+              description = stripped[match.end():].strip()
+              description = re.sub(r"^//\s*", "", description)
+              entries.append((url, description))
+
+          if not entries:
+              raise SystemExit("No image URLs were found in the source list.")
+
+          out_dir = pathlib.Path("icons")
+          out_dir.mkdir(exist_ok=True)
+          results = [None] * len(entries)
+
+          def download(item):
+              index, (url, description) = item
+              last_error = "Unknown error"
+              for attempt in range(1, 4):
+                  try:
+                      request = urllib.request.Request(
+                          url,
+                          headers={
+                              "User-Agent": "Mozilla/5.0",
+                              "Referer": "https://postimages.org/"
+                          }
+                      )
+                      with urllib.request.urlopen(request, timeout=35) as response:
+                          data = response.read()
+                          content_type = response.headers.get_content_type()
+                      if not data:
+                          raise ValueError("Empty response")
+                      ext = mimetypes.guess_extension(content_type) or pathlib.Path(
+                          urllib.parse.urlparse(url).path
+                      ).suffix or ".img"
+                      if ext == ".jpe":
+                          ext = ".jpg"
+                      filename = f"icon-{index + 1:04d}{ext}"
+                      (out_dir / filename).write_bytes(data)
+                      return {
+                          "index": index,
+                          "url": f"https://raw.githubusercontent.com/{os.environ['GITHUB_REPOSITORY']}/main/icons/{filename}",
+                          "description": description,
+                          "ok": True,
+                          "filename": filename
+                      }
+                  except Exception as exc:
+                      last_error = str(exc)
+                      time.sleep(attempt)
+              return {
+                  "index": index,
+                  "url": url,
+                  "description": description,
+                  "ok": False,
+                  "error": last_error
+              }
+
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+              for result in pool.map(download, enumerate(entries)):
+                  results[result["index"]] = result
+
+          # Keep all entries in their original order. Failed downloads keep their
+          # original URLs, so no icon is silently dropped.
+          with open("icons.json", "w", encoding="utf-8", newline="\n") as output:
+              for result in results:
+                  line = result["url"]
+                  if result["description"]:
+                      line += " // " + result["description"]
+                  output.write(line + "\n")
+
+          failed = [r for r in results if not r["ok"]]
+          with open("icon-import-report.txt", "w", encoding="utf-8") as report:
+              report.write(f"Total icons: {len(results)}\n")
+              report.write(f"Downloaded: {len(results) - len(failed)}\n")
+              report.write(f"Failed: {len(failed)}\n\n")
+              for result in failed:
+                  report.write(f"#{result['index'] + 1}: {result['url']}\n")
+                  report.write(f"Error: {result['error']}\n\n")
+
+          print(f"Found {len(results)} icon entries.")
+          print(f"Downloaded {len(results) - len(failed)}; failed {len(failed)}.")
+          PY
+
+      - name: Commit imported icons
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons icons.json icon-import-report.txt
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Import available icons from Postimages"
+            git push
+          fi
