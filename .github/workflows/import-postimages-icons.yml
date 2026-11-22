@@ -40,7 +40,7 @@ jobs:
               match = re.search(r"https?://[^\s]+", stripped)
               if not match:
                   continue
-              url = match.group(0).rstrip("),;")
+              url = match.group(0).rstrip("),;\\"'")
               description = stripped[match.end():].strip()
               description = re.sub(r"^//\s*", "", description)
               entries.append((url, description))
